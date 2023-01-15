@@ -2,6 +2,7 @@ from fastapi import FastAPI, File, UploadFile
 import pandas
 import os
 import requests
+import json
 
 app = FastAPI()
 
@@ -12,9 +13,13 @@ def upload(file: UploadFile = File()):
         with open(file.filename, 'wb') as f:
             f.write(contents)
     except Exception:
-        return {"message": "There was an error uploading the file"}
+        return {'message': 'There was an error uploading the file'}
     finally:
         file.file.close()
+
+    if not file.filename.endswith('.csv'):
+        os.remove(f'{file.filename}')
+        return {'message': 'You must upload a .csv file'}
 
     data_frame = pandas.DataFrame(pandas.read_csv(f'./{file.filename}', sep=';', index_col=False).to_dict())
     access_token = baubuddy_login()

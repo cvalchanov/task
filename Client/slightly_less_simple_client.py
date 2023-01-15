@@ -37,6 +37,7 @@ def background_color(row):
 def browse_file():
     try:
         file = filedialog.askopenfilename()
+        file_path_result.delete('0.0', 'end')
         file_path_result.insert('0.0', f'{file}')
     except FileNotFoundError:
         file_path_result.insert('0.0', 'Please choose a file')
@@ -44,6 +45,7 @@ def browse_file():
 
 def browse_folder():
     folder_path = filedialog.askdirectory()
+    folder_path_result.delete('0.0', 'end')
     folder_path_result.insert('0.0', f'{folder_path}')
 
 def send():
@@ -57,9 +59,16 @@ def send():
         files = {"file": open(f'{file_path}', 'rb')}
     except FileNotFoundError:
         result.insert('0.0', f'{timestamp}: Please choose a file to send\n')      
-        return  
+        return
+
     api_response = requests.post(api_url, files=files, verify=False)
-    data_frame = pandas.DataFrame(json.loads(api_response.json()))
+
+    try:
+        data_frame = pandas.DataFrame(json.loads(api_response.json()))
+    except (requests.exceptions.JSONDecodeError, TypeError):
+        result.insert('0.0', f'{timestamp}: Please choose a .csv file to send\n')
+        return
+
     styler = data_frame.sort_values(by='gruppe').style
 
     if 'labelIds' in keys_input:

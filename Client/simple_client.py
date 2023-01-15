@@ -30,9 +30,17 @@ def background_color(row):
 timestamp = datetime.now().isoformat(sep=' ', timespec='seconds')
 keys_input = input('Please enter keys: ').split(', ')
 filename = input('Please enter file name: ')
+
+while True:
+    if not filename.endswith('.csv'):
+        filename = input('Please enter a valid .csv file: ')
+    else:
+        break
+
 folder_path = path.dirname(__file__)
 current_date = date.today()
 api_url = 'http://127.0.0.1:8000/upload'
+
 while True:
     try:
         file_path = f'{path.dirname(__file__)}/{filename}'
@@ -40,6 +48,7 @@ while True:
         break
     except FileNotFoundError:
         filename = input('Please enter a valid file name: ')
+        
 api_response = requests.post(api_url, files=files, verify=False)
 data_frame = pandas.DataFrame(json.loads(api_response.json()))
 styler = data_frame.sort_values(by='gruppe').style
