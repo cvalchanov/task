@@ -14,7 +14,7 @@ client.geometry('600x600')
 
 def label_id_color(val, dict):
     color_code = ''
-    if val > 0:
+    if val:
         color_code = dict['colorCodes'][val]
     if color_code:
         return f'color: {color_code}'
